@@ -1,0 +1,121 @@
+# Motor de Scouting Estatístico VNL 2025
+
+Aplicação de scouting para a Volleyball Nations League (masculino 2025) que encontra jogadores com perfil de jogo similar usando busca vetorial no Qdrant. Cada atleta é representado por um vetor de 10 dimensões construído a partir de suas estatísticas, e os metadados (nome, seleção, posição, idade, altura) ficam no payload para filtros diretos.
+
+---
+
+## Como o vetor é construído (10 dimensões)
+
+Regra uniforme: cada um dos cinco fundamentos do voleibol contribui com duas features.
+
+| Dim | Fundamento    | Feature (pesos: 1 = volume, 0.4 = eficiência)   |
+|-----|---------------|-------------------------------------------------|
+| 0   | Ataque        | Attacks Per Match                               |
+| 1   | Bloqueio      | Blocks Per Match                                |
+| 2   | Saque         | Serves Per Match                                |
+| 3   | Backcourt     | Digs + Receives Per Match                       |
+| 4   | Levantamento  | Sets Per Match                                  |
+| 5   | Ataque (ef.)  | Kills / (Kills + Erros + Attempts)              |
+| 6   | Bloqueio (ef.)| Blocks / (Blocks + Erros + Rebounds)            |
+| 7   | Saque (ef.)   | Aces / (Aces + Erros + Attempts)                |
+| 8   | Recepção (ef.)| Successful Receives / Service Receptions        |
+| 9   | Levant. (ef.) | Sets ok / (Sets ok + Setting Errors)            |
+
+- Volume (peso 1) define a função do jogador (ponteiro ataca muito, líbero defende muito, levantador levanta muito) e domina a similaridade.
+- Eficiência (peso 0.4) ajusta pela qualidade sem sequestrar a função.
+- Cada feature é normalizada com min-max [0, 1] antes do peso.
+- A coleção usa distância de Cosseno (compara o formato do perfil).
+- Filtro de qualidade: jogadores com menos de 10 ações totais na competição são descartados.
+
+---
+
+## Estrutura do projeto
+
+```
+├── docker-compose.yml           (sobe o Qdrant local + o serviço app)
+├── Dockerfile                   (imagem Python do serviço app, já com requirements.txt instalado)
+├── requirements.txt             (dependências Python)
+├── config_qdrant.py             (host/porta/nome da coleção, lê .env)
+├── criar_qdrant.py              (cria a coleção + índices de payload)
+├── ingestao_qdrant.py           (lê CSV, calcula vetores, popula o Qdrant)
+├── testar_consultas.py          (executa os 7 padrões de acesso Q1-Q7)
+├── ingest_vnl.py                (script auxiliar de profiling/exploração)
+│
+└── data/
+    ├── playerStats.csv          (339 jogadores, 29 métricas - fonte)
+    ├── matchStats.csv           (116 partidas)
+    └── teamStats.csv            (18 times)
+```
+
+---
+
+## Instalação e uso
+
+Pré-requisito: apenas **Docker**. O Python e as dependências rodam dentro do container `app`, definido a partir do `Dockerfile`.
+
+### 1. Clonar o projeto
+
+```bash
+git clone <repo-url>
+cd GrupoE_RepositorioDeDadosENoSQL
+```
+
+### 2. Subir os containers (Qdrant + app)
+```bash
+docker compose up -d --build
+```
+
+### 3. Criar a coleção
+```bash
+docker compose exec app python criar_qdrant.py
+```
+
+### 4. Popular com os dados
+```bash
+docker compose exec app python ingestao_qdrant.py
+```
+
+### 5. Rodar as consultas Q1-Q7
+```bash
+docker compose exec app python testar_consultas.py
+```
+
+## Visualizar no dashboard
+
+Acesso em http://localhost:6333/dashboard.
+
+---
+
+## Padrões de acesso (Q1 a Q7)
+
+Implementados em `testar_consultas.py`, cada um responde um requisito funcional:
+
+| Q  | Padrão de acesso                               | Como funciona                           |
+|----|------------------------------------------------|-----------------------------------------|
+| Q1 | Busca vetorial pura                            | jogadores similares a um dado (cosseno) |
+| Q2 | Busca vetorial + filtro de payload             | substituto por posição e idade máxima   |
+| Q3 | Filtro puro de payload                         | lista elenco completo de uma seleção    |
+| Q4 | Busca vetorial com vetor sintético             | mais próximos de um "perfil ideal"      |
+| Q5 | Filtro múltiplo de payload                     | altura mínima x nacionalidade x idade   |
+| Q6 | Upsert                                         | atualiza vetor/payload de um jogador    |
+| Q7 | Lookup direto por id                           | perfil completo de um jogador pelo id   |
+
+> Q6 no script de teste salva o estado original e o restaura ao final, para não corromper a base entre execuções.
+
+---
+
+## Tecnologia
+
+| Componente | Tecnologia                      |
+|------------|---------------------------------|
+| ETL        | Python (pandas, numpy)          |
+| Vector DB  | Qdrant (Docker)                 |
+| Cliente    | qdrant-client                   |
+| Ambiente   | Docker Compose (Qdrant + app)   |
+
+---
+
+## Referências
+
+- Dataset: https://www.kaggle.com/datasets/owenhoag07/vnl-2025-mens
+- Qdrant: https://qdrant.tech/
