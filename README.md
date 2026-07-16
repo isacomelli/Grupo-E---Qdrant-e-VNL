@@ -115,6 +115,39 @@ Implementados em `testar_consultas.py`, cada um responde um requisito funcional:
 
 ---
 
+## Descrição do payload
+```
+{
+  "player_name": "Nome do jogador",
+  "team": "Sigla ou nome da equipe do jogador",
+  "nationality": "Nacionalidade do jogador",
+  "position": "Posição em que o jogador atua",
+  "age": "Idade do jogador em anos",
+  "height_cm": "Altura do jogador em centímetros",
+
+  "stats_raw": {
+    "attacks_per_match": "Média de ataques realizados por partida",
+    "kills": "Total de ataques que resultaram em ponto",
+    "attacking_attempts": "Total de tentativas de ataque",
+    "blocks_per_match": "Média de bloqueios por partida",
+    "serves_per_match": "Média de saques realizados por partida",
+    "aces": "Total de aces (saques que resultaram diretamente em ponto)",
+    "digs_per_match": "Média de defesas (digs) por partida",
+    "receives_per_match": "Média de recepções por partida",
+    "sets_per_match": "Média de levantamentos (sets) por partida"
+  },
+
+  "efficiency": {
+    "kill_pct": "Percentual de eficiência nos ataques (kills dividido pela tentativas de ataque)",
+    "ace_pct": "Percentual de eficiência nos saques (aces dividido pelos saques executados)",
+    "block_pct": "Percentual de eficiência nos bloqueios (total dividio pelas tentativas)",
+    "reception_pct": "Percentual de eficiência nas recepções (total dividido pelas tentativas)",
+    "setting_pct": "Percentual de eficiência nos levantamentos (total divididao pelas tentativas)"
+  }
+}
+```
+
+
 ## Referências
 
 - Dataset: https://www.kaggle.com/datasets/owenhoag07/vnl-2025-mens
