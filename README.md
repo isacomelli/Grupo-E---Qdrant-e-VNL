@@ -112,6 +112,20 @@ O script executa todos os padrões de acesso implementados.
 
 Acesso em http://localhost:6333/dashboard.
 
+O dashboard do Qdrant permite visualizar a coleção criada, seus vetores armazenados e os payloads associados a cada jogador.
+
+Na aba **Collections**, é possível consultar os dados da coleção `jogadores_vnl_2025`, visualizando os dados de cada atleta armazenados no payload.
+
+<p align="center">
+  <img src="img/5-dashboard-collection.png" alt="Visualização da coleção e payload dos jogadores no dashboard do Qdrant" width="900">
+</p>
+
+A funcionalidade **Visualize** permite observar a distribuição dos vetores no espaço vetorial em grafos, mostrando a proximidade entre jogadores com perfis estatísticos semelhantes.
+
+<p align="center">
+  <img src="img/6-dashboard-grafo.png" alt="Visualização dos vetores e relações de similaridade no dashboard do Qdrant" width="900">
+</p>
+
 ---
 
 ## Padrões de acesso (Q1 a Q7)
