@@ -61,24 +61,52 @@ cd GrupoE_RepositorioDeDadosENoSQL
 ```
 
 ### 2. Subir os containers (Qdrant + app)
+
 ```bash
 docker compose up -d --build
 ```
 
+Após a inicialização, os containers da aplicação e do Qdrant devem estar em execução.
+
+<p align="center">
+  <img src="img/1-initial.png" alt="Containers iniciados" width="900">
+</p>
+
 ### 3. Criar a coleção
+
 ```bash
 docker compose exec app python criar_qdrant.py
 ```
 
+Após a execução, a coleção e os índices de payload serão criados no Qdrant.
+
+<p align="center">
+  <img src="img/2-criacao-colecao.png" alt="Criação da coleção" width="700">
+</p>
+
 ### 4. Popular com os dados
+
 ```bash
 docker compose exec app python ingestao_qdrant.py
 ```
 
+O script realiza a leitura do dataset, calcula os vetores e insere os jogadores na coleção.
+
+<p align="center">
+  <img src="img/3-ingestao.png" alt="Ingestão dos dados" width="700">
+</p>
+
 ### 5. Rodar as consultas Q1-Q7
+
 ```bash
 docker compose exec app python testar_consultas.py
 ```
+
+O script executa todos os padrões de acesso implementados.
+
+<p align="center">
+  <img src="img/4-teste-consulta.png" alt="Execução das consultas" width="900">
+</p>
 
 ## Visualizar no dashboard
 
